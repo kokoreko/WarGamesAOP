@@ -7,29 +7,38 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Date;
 
 
 
 
 import TzukEitan.missiles.RemoteMissile;
-import javafx.scene.control.Label;
+
 
 public class ServerConnection extends Thread {
 	boolean IsConnected=false;
 	Socket socket = null;
 	ObjectInputStream fromNetInputStream;
 	ObjectOutputStream toNetOutputStream;
-	boolean run=false;
+	RemoteWarClientController remoteWarClientController;
 	
-	public ServerConnection(Label lbLine1) {
+	public ServerConnection(RemoteWarClientController remoteWarClientController) {
+		this.remoteWarClientController = remoteWarClientController;
+	
+	}
+
+	@Override
+	public void run() {
+		super.run();
 		while(!IsConnected)
 		{
 			try {
 				socket = new Socket("localhost", 7000);
 				IsConnected=true;
 				socket.setSoTimeout(30000);
-				lbLine1.setText("Connected to server");
+			
+				synchronized (remoteWarClientController) {
+					remoteWarClientController.notify();
+				}
 
 				// NOTE: have to set the output stream before the input stream!
 				toNetOutputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -38,30 +47,20 @@ public class ServerConnection extends Thread {
 				String text = (String)fromNetInputStream.readObject();
 				System.out.println("Recieved from server: " + text);
 
-				start();
+			
 			} catch (Exception e) {	System.out.println("*** " + e.getMessage());}
 
 		}
-	}
-
-	@Override
-	public void run() {
-		run=true;
-
-		super.run();
 		
-			do  {
-//				Status statusData = null;
-//				try{
-//				statusData = (Status)fromNetInputStream.readObject();
-//				} catch (Exception e){};
-//				if (statusData != null){
-//				System.out.println(new Date() + " --> Recieved from server: "
-//						+ statusData.toString());
-//				}
-//				statusData = null;
-			} while (run);
-		
+		try {
+			synchronized (this) {
+				wait();
+			}
+			
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try {
 			socket.close();
 			System.out.println("Client said goodbye..");
@@ -115,8 +114,8 @@ public class ServerConnection extends Thread {
 	 * Close active server connection
 	 */
 	public void close() {
-		if(run){
-			run=false;
+		synchronized (this) {
+			notifyAll();
 		}
 	}
 }

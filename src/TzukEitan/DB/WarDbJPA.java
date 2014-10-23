@@ -110,11 +110,12 @@ public class WarDbJPA implements WarDb {
 		EntityManager em = emf.createEntityManager();
 		em.getTransaction().begin();
 		try {
-			EnemyLauncher l =  (EnemyLauncher)em.createQuery("SELECT DISTINCT l FROM EnemyLauncher l WHERE l.war:currentWar AND l.id='"+launcherId+"' ")
+		
+			LauncherDestructor d =  (LauncherDestructor)em.createQuery("SELECT l FROM LauncherDestructor l WHERE l.war=:currentWar AND l.id='"+destructorId+"'")
 					.setParameter("currentWar", currentWar).getSingleResult();
-			l.setHitBy(destructorId);
-			l.setBeenHit(true);
-			l.setHitTime(new Date());
+		
+			d.setToDestroyId(launcherId);
+		
 			em.getTransaction().commit();
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -132,7 +133,7 @@ public class WarDbJPA implements WarDb {
 		EntityManager em = emf.createEntityManager();
 		em.getTransaction().begin();
 		try {
-			EnemyMissile m =  (EnemyMissile)em.createQuery("SELECT DISTINCT m FROM EnemyMissile m WHERE m.war=:currentWar AND m.id='"+enemyMissileId+"' ")
+			EnemyMissile m =  (EnemyMissile)em.createQuery("SELECT DISTINCT m FROM EnemyMissile m WHERE m.war=:currentWar AND m.id='"+enemyMissileId+"'")
 					.setParameter("currentWar", currentWar).getSingleResult();
 			m.setBeenHit(true);
 			

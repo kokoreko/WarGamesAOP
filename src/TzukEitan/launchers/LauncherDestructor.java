@@ -70,7 +70,7 @@ public class LauncherDestructor extends Thread implements Munitions{
 			isBusy = false;
 			
 			//update that there is no missile to this launcher
-			currentMissile = null;
+		//	currentMissile = null;
 		}// while
 		
 		// close the handler of the logger

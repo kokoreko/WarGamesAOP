@@ -9,7 +9,6 @@ public class ServerStatus implements Serializable {
 
 	public enum STATUS {Accepted,Deniend};
 	private STATUS stats;
-	private String details;
 	public ServerStatus(STATUS s) {
 			this.stats =s;
 		}

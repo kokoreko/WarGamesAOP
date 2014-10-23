@@ -210,9 +210,9 @@ public class War extends Thread {
 			String launcherId) {
 		for (LauncherDestructor ld : launcherDestractorArr)
 			if (ld.getDestructorId().equals(destructorId) && !ld.getIsBusy()) {
-
+				warDb.interceptGivenLauncher(destructorId, launcherId);
 				interceptGivenLauncher(launcherId, ld);
-
+				
 				// if found, not need to search more
 				return;
 			} else {

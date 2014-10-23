@@ -57,7 +57,7 @@ public class IronDome extends Thread implements Munitions {
 			}
 
 			// update that is no missile in this iron-dome
-			currentMissile = null;
+			//currentMissile = null;
 
 		}// while
 

@@ -170,7 +170,7 @@ public class EnemyLauncher extends Thread implements Munitions{
 	// use the stop the thread when the launcher is been hit
 	@Override
 	public void stopRunning() {
-		currentMissile = null;
+		//currentMissile = null;
 		beenHit = true;
 	}
 }

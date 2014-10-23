@@ -81,7 +81,9 @@ public class WarDbJDBC implements WarDb {
 			}
 		}
 	}
-
+	public void setConnection(Connection con){
+		this.connection = con;
+	}
 	public void addEnemyLauncher(String launcherId, boolean isHidden) {
 	
 		String cmd = "INSERT INTO enemy_launcher (warId,id,isHidden) VALUES ('"+warDbId+"','"+launcherId+"',"+(isHidden ? true:false)+")";
@@ -176,20 +178,24 @@ public class WarDbJDBC implements WarDb {
 		
 		
 	}
-	public static String getHistoryLog(LocalDateTime start, LocalDateTime end){
+	public String getHistoryLog(LocalDateTime start, LocalDateTime end){
 		StringBuilder ret = new StringBuilder();
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			int DbId = 0;
 			Connection connectionSt = DriverManager.getConnection(Constans.DB_URL, Constans.DB_USER, Constans.DB_PASWORD);
-
+			WarDbJDBC war = new WarDbJDBC();
+			war.setConnection(connectionSt);
 
 			String cmd = "SELECT * FROM wars WHERE StartDate >= '"+start+"' AND EndDate <= '"+end+"'";
 			try (Statement statment = connectionSt.createStatement()){
-
-
+				
 				ResultSet rs = statment.executeQuery(cmd);
 				while (rs.next()){
+					
+					Int numOfMissiles =new Int();
+					Int numOfInterceptedMissiles=new Int();
+					Int numOfInterceptedLaunchers = new Int();
 					DbId = rs.getInt("id");
 					ret.append("********************* WAR #");
 					ret.append(DbId);
@@ -197,11 +203,16 @@ public class WarDbJDBC implements WarDb {
 					ret.append(rs.getTimestamp("StartDate"));
 					ret.append(" *********************");
 					ret.append('\n');					
-					ret = getMissileHistoryByWarId(DbId,ret,connectionSt);
-					ret = getEnemyLauncherHistoryByWarId(DbId,ret,connectionSt);
-					ret = getLauncherDestructorHistoryByWarId(DbId,ret,connectionSt);
+					ret = war.getMissileHistoryByWarId(DbId,ret,connectionSt,numOfMissiles,numOfInterceptedMissiles);
+					ret = war.getEnemyLauncherHistoryByWarId(DbId,ret,connectionSt,numOfInterceptedLaunchers);
+					ret = war.getLauncherDestructorHistoryByWarId(DbId,ret,connectionSt);
 					ret.append('\n');
-					ret.append('\n');
+				
+					ret.append("\nNum of launch missiles \t\t" +numOfMissiles.getNum());
+					ret.append("\nNum of intercept missiles \t\t"+numOfInterceptedMissiles.getNum());
+					ret.append("\nNum of hit target missiles \t\t" +(numOfInterceptedMissiles.getNum()-numOfInterceptedMissiles.getNum()));
+					ret.append("\nNum of launchers destroyed \t\t" +numOfInterceptedLaunchers.getNum());
+				
 					ret.append('\n');
 				}
 				
@@ -218,12 +229,14 @@ public class WarDbJDBC implements WarDb {
 
 	}
 
-	private static StringBuilder getMissileHistoryByWarId(int id,StringBuilder ret, Connection connection){
+	private  StringBuilder getMissileHistoryByWarId(int id,StringBuilder ret, Connection connection, Int numOfMissiles, Int numOfInterceptedMissiles){
 
 		String cmd = "SELECT * FROM enemy_missile WHERE warId="+id;
+	
 		try (Statement statment = connection.createStatement()){
 			ResultSet rs = statment.executeQuery(cmd);
 			while (rs.next()){
+				numOfMissiles.setNum(numOfMissiles.getNum()+1);
 				ret.append("Missile: ");
 				ret.append(rs.getString("id"));
 				ret.append(" ");
@@ -240,6 +253,7 @@ public class WarDbJDBC implements WarDb {
 				ret.append(rs.getInt("flyTime"));
 				ret.append(" ");
 				if(rs.getBoolean("beenHit")){
+					numOfInterceptedMissiles.setNum(numOfInterceptedMissiles.getNum()+1);
 					ret.append("was intercepted in ");
 					ret.append(rs.getTimestamp("hitTime"));
 
@@ -251,9 +265,10 @@ public class WarDbJDBC implements WarDb {
 		} catch (Exception e) {
 
 		}
+	
 		return ret;
 	}
-	private static StringBuilder getLauncherDestructorHistoryByWarId(int id,StringBuilder ret, Connection connection){
+	private  StringBuilder getLauncherDestructorHistoryByWarId(int id,StringBuilder ret, Connection connection){
 
 		String cmd = "SELECT * FROM launcher_destructor WHERE warId="+id;
 		try (Statement statment = connection.createStatement()){
@@ -265,8 +280,10 @@ public class WarDbJDBC implements WarDb {
 				ret.append("type: ");
 				ret.append(rs.getString("type"));
 				ret.append(" ");
-				ret.append("set to destroy : ");
-				ret.append(rs.getString("toDestroyId"));
+				if(!rs.getString("toDestroyId").equals("null")){
+					ret.append("set to destroy : ");
+					ret.append(rs.getString("toDestroyId"));
+				}
 
 				ret.append('\n');
 			}
@@ -275,8 +292,8 @@ public class WarDbJDBC implements WarDb {
 		}
 		return ret;
 	}
-	private static StringBuilder getEnemyLauncherHistoryByWarId(int id,StringBuilder ret, Connection connection){
-
+	private  StringBuilder getEnemyLauncherHistoryByWarId(int id,StringBuilder ret, Connection connection, Int numOfInterceptedLaunchers){
+		
 		String cmd = "SELECT * FROM enemy_launcher WHERE warId="+id;
 		try (Statement statment = connection.createStatement()){
 			ResultSet rs = statment.executeQuery(cmd);
@@ -285,6 +302,7 @@ public class WarDbJDBC implements WarDb {
 				ret.append(rs.getString("id"));
 				ret.append(" ");
 				if(rs.getBoolean("beenHit")){
+					numOfInterceptedLaunchers.setNum(numOfInterceptedLaunchers.getNum()+1);
 					ret.append("was hit by : ");
 					ret.append(rs.getString("hitBy"));
 					ret.append(" ");
@@ -300,6 +318,23 @@ public class WarDbJDBC implements WarDb {
 	}
 
 
+	class Int
+	{
+		int num;
+		public Int(int n){
+			num=n;
+		}
+		public Int(){
+			num=0;
+		}
+		public int getNum() {
+			return num;
+		}
+		public void setNum(int num) {
+			this.num = num;
+		}
+		
+	}
 
 
 }

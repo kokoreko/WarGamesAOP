@@ -236,12 +236,14 @@ public class WarControl implements WarEventListener, WarEventUIListener{
 	@Override
 	public void missileNotExist(String defenseLauncherId, String enemyId) {
 		view.showMissileNotExist(defenseLauncherId, enemyId);
+		viewGUI.showMissileNotExist(defenseLauncherId, enemyId);
 	}
 	
 	@Override
 	public void enemyLauncherNotExist(String defenseLauncherId,
 			String launcherId) {
 		view.showLauncherNotExist(defenseLauncherId, launcherId);
+		viewGUI.showLauncherNotExist(defenseLauncherId, launcherId);
 	}
 
 	@Override

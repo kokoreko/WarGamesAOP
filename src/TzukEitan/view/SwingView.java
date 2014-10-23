@@ -5,10 +5,15 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JPanel;
+
 import java.awt.GridLayout;
+
 import javax.swing.JLabel;
+
 import java.awt.BorderLayout;
+
 import javax.swing.JButton;
+
 import TzukEitan.GUI.frmAddLauncherDestractor;
 import TzukEitan.GUI.frmDestroyLauncher;
 import TzukEitan.GUI.frmInterceptMissile;
@@ -20,6 +25,7 @@ import TzukEitan.GUI.pnMissile;
 import TzukEitan.GUI.pnMissileIntercepter;
 import TzukEitan.GUI.warMenu;
 import TzukEitan.listeners.WarEventUIListener;
+
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,6 +35,7 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.awt.Dimension;
+
 import javax.swing.SwingConstants;
 /**
  * 
@@ -306,7 +313,7 @@ public class SwingView extends JFrame{
 	private void removePanel(JPanel removePanel, JPanel panelList){
 		try{
 		panelList.remove(removePanel);
-		}catch(Exception e){System.err.println("ZONA BAT ZONA");}
+		}catch(Exception e){}
 		repaint();
 		validate();
 	}
@@ -395,10 +402,21 @@ public class SwingView extends JFrame{
 		
 	}
 
+
+	public void showMissileNotExist(String defenseLauncherId, String enemyId) {
+		JPanel missilePanel = allMissilePanels.get(enemyId);
+		removePanel(missilePanel, missileAllPanels);
+	}
+
+	public void showLauncherNotExist(String defenseLauncherId, String launcherId) {
+		pnLauncher launcherPanel = allLauncherPanels.get(launcherId);
+		removePanel(launcherPanel, launcherAllPanels);
+		
+	}
+
 	public void showEndWar() {
 		this.setVisible(false);
 		
 	}
-
 	
 }

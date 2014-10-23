@@ -5,6 +5,10 @@ import java.util.ArrayList;
 
 
 
+
+
+
+
 import TzukEitan.missiles.RemoteMissile;
 import javafx.scene.control.Label;
 import javafx.event.ActionEvent;
@@ -12,7 +16,7 @@ import javafx.fxml.FXML;
 
 public class RemoteWarClientController {
 
-	private enum OpMODE {Default,LauncherSelect,CitySelect,FlyTimeSelect,DamageSelect}
+	public enum OpMODE {Connecting,Default,LauncherSelect,CitySelect,FlyTimeSelect,DamageSelect}
 	private OpMODE operationMode;
 	private ServerConnection connetion = null;
 	private ArrayList<String> citys;
@@ -51,7 +55,6 @@ public class RemoteWarClientController {
 		
 		try {
 			 
-	
 			lbLine2.setText(connetion.addLauncher());
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
@@ -61,9 +64,24 @@ public class RemoteWarClientController {
 	}
 	@FXML protected void TrunOnOffSystem(ActionEvent event){
 		if(connetion == null){
-			connetion = new ServerConnection(lbLine1);
-			operationMode= OpMODE.Default;
+			
+			lbLine1.setText("Connecting to server... [Please wait]");
+		
+			connetion = new ServerConnection(this);
+			connetion.start();
+			synchronized (this) {
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			lbLine1.setText("Connected to server");
 			lbLine2.setText("Select option");
+			operationMode = OpMODE.Default;
+			
+		
 		}
 	}
 	@SuppressWarnings("incomplete-switch")
@@ -166,6 +184,11 @@ public class RemoteWarClientController {
 	}
 	@FXML protected void CancelButton(ActionEvent event){
 
+		operationMode=OpMODE.Default;
+		lbLine1.setText("");
+		lbLine2.setText("Select option");
+		
+		
 	}
 	@FXML protected void ExitButton(ActionEvent event){
 		if (connetion != null){
