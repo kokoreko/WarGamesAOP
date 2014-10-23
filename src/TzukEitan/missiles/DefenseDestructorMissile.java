@@ -42,11 +42,9 @@ public class DefenseDestructorMissile extends Thread {
 				launcherToDestroy.interrupt();
 			}
 		}// synchronized
-	
-		if(launcherToDestroy.isInterrupted()){
-			warDb.defenseHitInterceptionLauncher(whoLaunchedMeId, launcherToDestroy.getLauncherId());
+
+		if(launcherToDestroy.isInterrupted() || launcherToDestroy.isBeenHit()){
 			fireHitEvent();
-			
 		}else {
 			fireMissEvent();
 		}
@@ -58,9 +56,10 @@ public class DefenseDestructorMissile extends Thread {
 			l.defenseHitInterceptionLauncher(whoLaunchedMeId,
 					whoLaunchedMeType, id, launcherToDestroy.getLauncherId());
 		}
-
+		
 		// update statistics
 		statistics.increaseNumOfLauncherDestroyed();
+		warDb.defenseHitInterceptionLauncher(whoLaunchedMeId, launcherToDestroy.getLauncherId());
 	}
 
 	// Event

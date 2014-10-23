@@ -28,9 +28,11 @@ public class pnMissile extends JPanel{
 	private JLabel lblMissile;
 	private JScrollPane jspMissileInfo;
 	private JTextArea jtaMissileInfo;
+	private String destination;
 	
 	public pnMissile(String myMunitionsId, String missileId,
 			String destination, int damage) {
+		this.destination = destination;
 		initLabelAndIcon(missileId);
 		setLayout(new MigLayout("", "[124px]", "[75px][75px]"));
 		add(lblMissile, "cell 0 0,grow");
@@ -56,5 +58,9 @@ public class pnMissile extends JPanel{
 		lblMissile.setVerticalTextPosition(SwingConstants.TOP);
 		lblMissile.setHorizontalTextPosition(JLabel.CENTER);
 		lblMissile.setPreferredSize(new Dimension(70, 80));
+	}
+	
+	public String getDestination(){
+		return destination;
 	}
 }

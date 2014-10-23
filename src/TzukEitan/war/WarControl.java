@@ -11,7 +11,7 @@ import TzukEitan.view.WarXMLReader;
 
 public class WarControl implements WarEventListener, WarEventUIListener{
 	private War warModel;
-	
+
 	private ConsoleView view;
 	private SwingView viewGUI;
 	
@@ -19,12 +19,12 @@ public class WarControl implements WarEventListener, WarEventUIListener{
 		this.warModel = warModel;
 		this.view = view;
 		this.viewGUI = viewGUI;
-		
+	
 		
 		warModel.registerListenerts(this);
 		view.registerListeners(this);
 		viewGUI.registerListeners(this);
-		
+	
 	}
 	
 	//Method that related to the view & viewGUI
@@ -37,6 +37,7 @@ public class WarControl implements WarEventListener, WarEventUIListener{
 	@Override
 	public void defenseLaunchMissile(String myMunitionsId, String type,	String missileId, String enemyLauncherId) {
 		view.showDefenseLaunchMissile(myMunitionsId, type, missileId, enemyLauncherId);
+		viewGUI.showDefenseLaunchMissile(myMunitionsId, type, missileId, enemyLauncherId);
 	}
 
 	@Override
@@ -71,30 +72,33 @@ public class WarControl implements WarEventListener, WarEventUIListener{
 	@Override
 	public void defenseMissInterceptionMissile(String whoLaunchedMeId, String missileId, String enemyMissileId, int damage) {
 		view.showMissInterceptionMissile(whoLaunchedMeId, missileId, enemyMissileId);
+		viewGUI.showMissInterceptionMissile(whoLaunchedMeId, missileId, enemyMissileId);
 	}
 
 	@Override
 	public void defenseHitInterceptionMissile(String whoLaunchedMeId, String missileId, String enemyMissileId) {
 		view.showHitInterceptionMissile(whoLaunchedMeId, missileId, enemyMissileId);
-		viewGUI.showHitInterceptionMissile(enemyMissileId);
+		viewGUI.showHitInterceptionMissile(whoLaunchedMeId, missileId, enemyMissileId);
 	
 	}
 
 	@Override
 	public void enemyHitDestination(String whoLaunchedMeId, String missileId, String destination, int damage, String launchTime) {
 		view.showEnemyHitDestination(whoLaunchedMeId, missileId, destination, damage);
-		viewGUI.showEnemyHitDestination(missileId);
+		viewGUI.showEnemyHitDestination(whoLaunchedMeId, missileId, destination, damage);
 	}
 
 	@Override
 	public void defenseMissInterceptionLauncher(String whoLaunchedMeId,	String type, String missileId, String enemyLauncherId) {
 		view.showMissInterceptionLauncher(whoLaunchedMeId,type, enemyLauncherId, missileId);
+		viewGUI.showMissInterceptionLauncher(whoLaunchedMeId,type, enemyLauncherId, missileId);
 
 	}
 	
 	@Override
 	public void defenseMissInterceptionHiddenLauncher(String whoLaunchedMeId, String type, String enemyLauncherId) {
 		view.showMissInterceptionHiddenLauncher(whoLaunchedMeId,type, enemyLauncherId);
+		viewGUI.showMissInterceptionHiddenLauncher(whoLaunchedMeId,type, enemyLauncherId);
 	}
 	
 	@Override
@@ -111,7 +115,7 @@ public class WarControl implements WarEventListener, WarEventUIListener{
 	public void finishWarUI() {
 		WarXMLReader.stopAllThreads();
 		//warModel.finishWar();
-		
+	
 		//notify the war
 		synchronized (warModel) {
 			warModel.notify();
@@ -149,7 +153,7 @@ public class WarControl implements WarEventListener, WarEventUIListener{
 	@Override
 	public void interceptGivenLauncherUI(String destructorId, String launcherId) {
 		warModel.interceptGivenLauncher(destructorId,launcherId);
-		
+
 		
 	}
 	
@@ -167,15 +171,15 @@ public class WarControl implements WarEventListener, WarEventUIListener{
 
 	@Override
 	public void addEnemyMissileUI(String launcherId, String destination, int damage, int flyTime) {
-		warModel.launchEnemyMissile(launcherId, destination, damage, flyTime);
-		
+		String id = warModel.launchEnemyMissile(launcherId, destination, damage, flyTime);
+
 		
 	}
 
 	@Override
 	public String addEnemyLauncherUI(String launcherId, boolean isHidden) {
 		String id = warModel.addEnemyLauncher(launcherId, isHidden);
-		
+
 		return id;
 	}
 	
@@ -213,11 +217,6 @@ public class WarControl implements WarEventListener, WarEventUIListener{
 
 	@Override
 	public void warHasBeenFinished() {	
-		/**try {
-			view.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} **/
 	
 		view.showWarHasBeenFinished();
 		viewGUI.showEndWar();
@@ -226,11 +225,13 @@ public class WarControl implements WarEventListener, WarEventUIListener{
 	@Override
 	public void warHasBeenStarted() {
 		view.showWarHasBeenStarted();
+		viewGUI.showWarHasBeenStarted();
 	}
 
 	@Override
 	public void noSuchObject(String type) {
 		view.showNoSuchObject(type);
+		viewGUI.showNoSuchObject(type);
 	}
 
 	@Override

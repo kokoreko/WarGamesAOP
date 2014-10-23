@@ -350,10 +350,11 @@ public class War extends Thread {
 		EnemyLauncher launcher = new EnemyLauncher(launcherId, isHidden, statistics);
 		for (WarEventListener l : allListeners)
 			launcher.registerListeners(l);
-	
+		
+		warDb.addEnemyLauncher(launcherId, isHidden);
 		launcher.start();
 		enemyLauncherArr.add(launcher);
-		warDb.addEnemyLauncher(launcherId, isHidden);
+		
 		return launcherId;
 	}
 

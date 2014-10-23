@@ -5,8 +5,11 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
+import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.Point;
 
 import javax.swing.JLabel;
 
@@ -25,6 +28,7 @@ import TzukEitan.GUI.pnMissile;
 import TzukEitan.GUI.pnMissileIntercepter;
 import TzukEitan.GUI.warMenu;
 import TzukEitan.listeners.WarEventUIListener;
+import TzukEitan.utils.Utils;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -43,19 +47,24 @@ import javax.swing.SwingConstants;
  *
  */
 public class SwingView extends JFrame{
-	private JPanel upPanel,buttonsPanel,panCenter,panMissile,panLauncher,panMap,panMissileIntercepter,
-					panLauncherDestractor,missileAllPanels,launcherAllPanels,lancherDestroyerAllPanel,missileIntercepterAllPanel,mapAllPanel;
+	private JPanel upPanel, downPanel,buttonsPanel,panCenter,panMissile,panLauncher,panMap,panMissileIntercepter,
+					panLauncherDestractor,missileAllPanels,launcherAllPanels,lancherDestroyerAllPanel,missileIntercepterAllPanel,mapAllPanel,
+					mainPanel;
 			
-	private JLabel mapLabel,lblLaunchers,lblMIssiles,lblMap,lblMissileIntercepter,lblLauncherDestractor;
+	private JLabel lblLog, mapLabel,lblLaunchers,lblMIssiles,lblMap,lblMissileIntercepter,lblLauncherDestractor;
 	private JButton btnAddMissileIntercepter, btnLaunchMissile,btnAddLauncherIntercepter
 					,btnAddLauncher,btnInterceptLauncher,btnInterceptMissile,btnShowStatistics,btnEndWar;
 	private List<WarEventUIListener> allListeners;
 
-	private JScrollPane spMissiles,spLauncherDestroyer,spMissileIntercepter,spLaunchers,spMap;
+	private JScrollPane spMissiles,spLauncherDestroyer,spMissileIntercepter,spLaunchers,spMap,jspInfo;
 	private Hashtable<String, pnLauncher> allLauncherPanels;
 	private Hashtable<String, pnMissile> allMissilePanels;
 	private boolean warHasEnded = false;
+	private Hashtable<String,Point> cityLocation;
 
+	private JTextArea jtaInfo;
+
+	
 	/**
 	 * Constructor of to the war Main Frame
 	 */
@@ -83,11 +92,39 @@ public class SwingView extends JFrame{
 		allListeners = new LinkedList<WarEventUIListener>();
 		
 	}
-	 
+	
+	private Hashtable<String, Point> createLocation(){
+		cityLocation = new Hashtable<String, Point>();
+		cityLocation.put("Sderot", new Point(136, 575));
+		cityLocation.put("Ofakim",new Point(132,665));
+		cityLocation.put("Beer-Sheva", new Point(200,668));
+		cityLocation.put("Netivot", new Point(139,616));
+		cityLocation.put("Tel-Aviv", new Point(189,423));
+		cityLocation.put("Re'ut", new Point(226,504));
+		
+		return cityLocation;
+		
+	}
 	private void setLayoutAndStyle() {
 		warMenu warMenuBar = new warMenu(this);
 		upPanel = new JPanel();
-		getContentPane().add(upPanel, BorderLayout.CENTER);
+		mainPanel = new JPanel();
+		mainPanel.setLayout(new GridLayout(2,1));
+		mainPanel.add(upPanel);
+		
+		jtaInfo = new JTextArea();
+		jtaInfo.setText("");
+		jtaInfo.setSize(getMaximumSize());
+		jspInfo = new JScrollPane(jtaInfo);
+		lblLog = new JLabel("War Log");
+		lblLog.setHorizontalAlignment(SwingConstants.CENTER);
+		downPanel = new JPanel();
+		downPanel.setLayout(new BorderLayout(0, 0));
+		downPanel.add(lblLog,BorderLayout.NORTH);
+		downPanel.add(jspInfo,BorderLayout.CENTER);
+		mainPanel.add(downPanel);
+		
+		getContentPane().add(mainPanel, BorderLayout.CENTER);
 		upPanel.setLayout(new BorderLayout(0, 0));
 		upPanel.add(warMenuBar,BorderLayout.NORTH);
 		
@@ -128,7 +165,6 @@ public class SwingView extends JFrame{
 		lblMap = new JLabel("Israel Map");
 		lblMap.setHorizontalAlignment(SwingConstants.CENTER);
 		panMap.add(lblMap, BorderLayout.NORTH);
-		
 		mapLabel = new JLabel(new ImageIcon(getClass().getResource("/TzukEitan/images/Israel_relief_location_mapSmall.jpg")));
 		spMap = new JScrollPane(mapLabel);
 		mapAllPanel = new JPanel();
@@ -169,6 +205,7 @@ public class SwingView extends JFrame{
 		
 		getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 		buttonsPanel.setLayout(new GridLayout(2, 4, 2, 2));
+		createLocation();
 	}
 	
 	//Create Buttons Action Listeners
@@ -229,9 +266,18 @@ public class SwingView extends JFrame{
 	protected void fireDestroyLauncher() {
 		frmDestroyLauncher DestroyLauncher = new frmDestroyLauncher(allListeners);
 		if(DestroyLauncher.getStat() == false){
+			updateLauncher();
 			JOptionPane.showMessageDialog(this, "All Launchers Are Hidden or Destroyed");
 		}
 	}
+
+	private void updateLauncher() {
+		for(pnLauncher l : allLauncherPanels.values()){
+			if(l.isHiddin()) removePanel(l, missileAllPanels);
+		}
+		
+	}
+
 	protected void fireAddLauncher() {
 		for (WarEventUIListener l : allListeners)
 			l.addEnemyLauncherUI();
@@ -248,10 +294,17 @@ public class SwingView extends JFrame{
 	protected void fireInterceptMissile() {
 		frmInterceptMissile interceptMissile = new frmInterceptMissile(allListeners);
 		if(interceptMissile.getStat() == false){
-			JOptionPane.showMessageDialog(this, "No Missiles to intercept");		
+			updateMissiles();
+			JOptionPane.showMessageDialog(this, "No Missiles to intercept");	
 		}
 	}
 	
+	private void updateMissiles() {
+		for( pnMissile m : allMissilePanels.values())
+			removePanel(m , missileAllPanels);
+		
+	}
+
 	protected void fireAddIronDome() {
 		for (WarEventUIListener l : allListeners)
 			l.addIronDomeUI();
@@ -309,7 +362,7 @@ public class SwingView extends JFrame{
 		buttonsPanel.add(btnEndWar);
 	}
 	
-	// Show Changes to GUI Functions
+	// Show Changes to GUI - Functions
 	private void removePanel(JPanel removePanel, JPanel panelList){
 		try{
 		panelList.remove(removePanel);
@@ -320,24 +373,104 @@ public class SwingView extends JFrame{
 
 	public void showDefenseLaunchMissile(String myMunitionsId,
 			String missileId, String enemyMissileId) {
-		
-		
-	}
-
-	public void showStatistics(long[] statisticsToArray) {
-		frmShowStats statsFrm = new frmShowStats(warHasEnded);
-		statsFrm.addStats(statisticsToArray);
+		jtaInfo.append("\n[" + Utils.getCurrentTime() + "] Iron dome: "
+				+ myMunitionsId + " just launched missile: " + missileId
+				+ " towards missile: " + enemyMissileId);
 		
 	}
-
+	
+	public void showDefenseLaunchMissile(String myMunitionsId, String type,
+			String missileId, String enemyLauncherId) {
+		jtaInfo.append("\n[" + Utils.getCurrentTime() + "] " + type + ": "
+				+ myMunitionsId + " just launched missile: " + missileId
+				+ " towards launcher: " + enemyLauncherId);
+		
+	}
+	
 	public void showEnemyLaunchMissile(String myMunitionsId, String missileId,
 			String destination, int damage) {
 		pnMissile missilePanel = new pnMissile(myMunitionsId,missileId,destination,damage);
 		allMissilePanels.put(missileId, missilePanel);
 		missileAllPanels.add(missilePanel);
 		
+		jtaInfo.append("\n[" + Utils.getCurrentTime() + "] Launcher: "
+				+ myMunitionsId + " just launched missile: " + missileId
+				+ " towards: " + destination
+				+ " its about to cause damade of: " + damage);
+		
 		repaint();
 		validate();
+	}
+	
+	public void showMissInterceptionMissile(String whoLaunchedMeId,
+			String missileId, String enemyMissileId) {
+		jtaInfo.append("\n[" + Utils.getCurrentTime() + "] Iron Dome: "
+				+ whoLaunchedMeId + " fired missile: " + missileId
+				+ " but missed the missile: " + enemyMissileId);
+		
+	}
+	
+	public void showHitInterceptionMissile(String whoLaunchedMeId, String missileId, String enemyMissileId2) {
+		JPanel missilePanel = allMissilePanels.get(enemyMissileId2);
+		removePanel(missilePanel, missileAllPanels);
+		jtaInfo.append("\n[" + Utils.getCurrentTime() + "] Iron Dome: "
+				+ whoLaunchedMeId + " fired missile: " + missileId
+				+ " and intercept succesfully the missile: " + whoLaunchedMeId);
+	}
+	
+	public void showEnemyHitDestination(String enemyMissileId, String missileId, String destination, int damage) {
+		
+		pnMissile missilePanel = allMissilePanels.get(missileId);
+		removePanel(missilePanel, missileAllPanels);
+		
+		jtaInfo.append("\n[" + Utils.getCurrentTime() + "] Enemy Missile: "
+				+ missileId + " HIT " + destination + ". the damage is: " + damage
+				+ ". Launch by: " + enemyMissileId);
+		
+		// Create a Red Dot On The Map!!!!!!!!!!!!!!!!!!
+		//makeDotOnMap(missilePanel.getDestination());
+	}
+	
+	public void showEnemyMissDestination(String whoLaunchedMeId, String id,
+			String destination, String launchTime) {
+		
+		JPanel missilePanel = allMissilePanels.get(id);
+		removePanel(missilePanel, missileAllPanels);
+		jtaInfo.append("\n[" + Utils.getCurrentTime() + "] Enemy Missile: "
+				+ id + " MISSED " + destination + " launch at: " + launchTime
+				+ ". Launch by: " + whoLaunchedMeId);
+	}
+	
+	public void showMissInterceptionLauncher(String whoLaunchedMeId,
+			String type, String enemyLauncherId, String missileId) {
+		jtaInfo.append("\n[" + Utils.getCurrentTime() + "] " + type + ": "
+				+ whoLaunchedMeId + " fired missile: " + missileId
+				+ " but missed the Launcher: " + enemyLauncherId);
+		
+	}
+	
+	public void showMissInterceptionHiddenLauncher(String whoLaunchedMeId,
+			String type, String enemyLauncherId) {
+		jtaInfo.append("\n[" + Utils.getCurrentTime() + "] " + type + ": "
+				+ whoLaunchedMeId + " missed the Launcher: " + enemyLauncherId
+				+ " because he is hidden");
+	}
+
+	public void showHitInterceptionLauncher(String whoLaunchedMeId,
+			String type, String enemyLauncherId, String missileId) {
+		
+		JPanel launcherPanel = allLauncherPanels.get(enemyLauncherId);
+		removePanel(launcherPanel, launcherAllPanels);
+		jtaInfo.append("\n[" + Utils.getCurrentTime() + "] " + type + ": "
+						+ whoLaunchedMeId + " fired missile: " + missileId
+						+ " and intercept succesfully the Launcher: "
+						+ enemyLauncherId);
+		
+	}
+	
+	public void showStatistics(long[] statisticsToArray) {
+		frmShowStats statsFrm = new frmShowStats(warHasEnded);
+		statsFrm.addStats(statisticsToArray);
 		
 	}
 
@@ -354,6 +487,9 @@ public class SwingView extends JFrame{
 	public void showLauncherIsVisible(String id, boolean visible) {
 		pnLauncher tempLauncher = allLauncherPanels.get(id);
 		tempLauncher.setHiden(visible);
+		String str = visible ? "visible" : "hidden";
+		jtaInfo.append("\n[" + Utils.getCurrentTime() + "] Launcher: " + id
+				+ " just turned " + str);
 		
 	}
 
@@ -373,50 +509,65 @@ public class SwingView extends JFrame{
 		validate();
 	}
 
-	public void showHitInterceptionMissile(String enemyMissileId) {
-		JPanel missilePanel = allMissilePanels.get(enemyMissileId);
-		removePanel(missilePanel, missileAllPanels);
+
+	private void makeDotOnMap(String destination) {
 		
+		JLabel lblRedDot = new JLabel(new ImageIcon(getClass().getResource("/TzukEitan/images/red.png")));
+		mapAllPanel.add(lblRedDot);
+		try{
+		lblRedDot.setLocation(cityLocation.get(destination));
+		}catch(Exception e){}
+		
+		repaint();
+		validate();
 	}
 
-	public void showEnemyHitDestination(String enemyMissileId) {
-		JPanel missilePanel = allMissilePanels.get(enemyMissileId);
-		removePanel(missilePanel, missileAllPanels);
-		// Create a Red Dot On The Map!!!!!!!!!!!!!!!!!!
-	}
-
-
-	public void showHitInterceptionLauncher(String whoLaunchedMeId,
-			String type, String enemyLauncherId, String missileId) {
-		
-		JPanel launcherPanel = allLauncherPanels.get(enemyLauncherId);
-		removePanel(launcherPanel, launcherAllPanels);
-		
-	}
-
-	public void showEnemyMissDestination(String whoLaunchedMeId, String id,
-			String destination, String launchTime) {
-		
-		JPanel missilePanel = allMissilePanels.get(id);
-		removePanel(missilePanel, missileAllPanels);
-		
-	}
-
-
+	
 	public void showMissileNotExist(String defenseLauncherId, String enemyId) {
 		JPanel missilePanel = allMissilePanels.get(enemyId);
 		removePanel(missilePanel, missileAllPanels);
+		
+		jtaInfo.append("\n[" + Utils.getCurrentTime() + "] ERROR: "
+				+ defenseLauncherId + " tried to intercept, " + "but missed: "
+				+ enemyId + " doesn't exist!");
 	}
 
 	public void showLauncherNotExist(String defenseLauncherId, String launcherId) {
 		pnLauncher launcherPanel = allLauncherPanels.get(launcherId);
 		removePanel(launcherPanel, launcherAllPanels);
 		
-	}
-
-	public void showEndWar() {
-		this.setVisible(false);
+		jtaInfo.append("\n[" + Utils.getCurrentTime() + "] ERROR: "
+		+ defenseLauncherId + " tried to intercept, " + "but missed: "
+		+ launcherId + " doesn't exist!");
 		
 	}
+	
+	public void showEndWar() {
+		this.setVisible(false);
+		jtaInfo.append("\n[" + Utils.getCurrentTime()
+			+ "] =========>> Finally THIS WAR IS OVER!!! <<=========");
+		
+	}
+
+	public void showWarHasBeenStarted() {
+		jtaInfo.append("[" + Utils.getCurrentTime()
+				+ "] =========>> War has been strated!!! <<=========");
+		
+	}
+
+	public void showNoSuchObject(String type) {
+		jtaInfo.append("\n[" + Utils.getCurrentTime()
+		+ "] ERROR: Cannot find " + type + " you selected in war");
+		
+	}
+
+
+
+
+
+
+
+
+
 	
 }

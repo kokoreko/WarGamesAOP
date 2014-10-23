@@ -17,10 +17,11 @@ public class pnLauncher extends JPanel {
 
 	private JLabel lblLauncher,state;
 	private JScrollPane jspLauncherInfo;
-
+	private boolean isHidden;
 	private String[] stat= {"Visabale","Hidden"};
 	public pnLauncher(String LauncherId,boolean isHidden) {
 		int i=0;
+		this.isHidden = isHidden;
 		initLabelAndIcon(LauncherId);
 		setLayout(new MigLayout("", "[124px]", "[75px][75px]"));
 		add(lblLauncher, "cell 0 0,grow");
@@ -49,8 +50,13 @@ public class pnLauncher extends JPanel {
 
 	public void setHiden(boolean isHidden) {
 		int i=1;
+		this.isHidden = isHidden;
 		if(isHidden) i = 0 ;
 		state.setText("Lancher is: " + stat[i]);
 
+	}
+
+	public boolean isHiddin() {
+		return this.isHidden;
 	}
 }

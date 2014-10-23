@@ -3,11 +3,11 @@ package TzukEitan.launchers;
 import java.util.LinkedList;
 import java.util.List;
 
-import TzukEitan.aspect.WarLoggerAspect;
 import TzukEitan.listeners.WarEventListener;
 import TzukEitan.missiles.EnemyMissile;
 import TzukEitan.utils.IdGenerator;
 import TzukEitan.utils.Utils;
+
 import TzukEitan.war.WarStatistics;
 
 public class EnemyLauncher extends Thread implements Munitions{
@@ -31,7 +31,7 @@ public class EnemyLauncher extends Thread implements Munitions{
 		allListeners = new LinkedList<WarEventListener>();
 		firstHiddenState = isHidden;
 
-		//WarLoggerAspect.addLoggerHandler("Launcher", id);
+	
 	}
 
 	public void run() {
@@ -61,12 +61,11 @@ public class EnemyLauncher extends Thread implements Munitions{
 			}
 
 			// update that this launcher is not in use
-			//currentMissile = null;
+			currentMissile = null;
 
 		}// while
 
-		// close the handler of the logger
-		//WarLoggerAspect.closeMyHandler(id);
+	
 		
 	}// run
 	
@@ -107,7 +106,10 @@ public class EnemyLauncher extends Thread implements Munitions{
 			fireEnemyLauncherIsVisibleEvent(false);
 
 		// wait until the missile will finish
+		try
+		{
 		currentMissile.join();
+		} catch(Exception e){}
 	}
 
 	// Create new missile
@@ -170,7 +172,11 @@ public class EnemyLauncher extends Thread implements Munitions{
 	// use the stop the thread when the launcher is been hit
 	@Override
 	public void stopRunning() {
-		//currentMissile = null;
+		currentMissile = null;
 		beenHit = true;
+	}
+	
+	public boolean isBeenHit(){
+		return beenHit;
 	}
 }

@@ -26,8 +26,8 @@ public class Utils {
 	public static final Font PANEL_FONT = new Font("Arial", Font.PLAIN, 9);
 	public static final Font FONT = new Font("Arial", Font.PLAIN, 16);
 	
-	private static final double DESTRACOTR_SUCCES_RATE = 0.95;
-	private static final double SUCCES_RATE = 0.7;
+	private static final double DESTRACOTR_SUCCES_RATE = 0.99;
+	private static final double SUCCES_RATE = 0.99;
 	private static final double IS_HIDDEN_RATE = 0.5;
 	private static final String DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
 	
