@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="481.0" prefWidth="916.0" style="-fx-background-image: url(&quot;TzukEitan/remote/controller.jpg&quot;);" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="TzukEitan.remote.main.RemoteWarClientController">
+   <children>
+      <Button layoutX="555.0" layoutY="203.0" mnemonicParsing="false" onAction="#AddLauncherButtonAction" prefHeight="31.0" prefWidth="100.0" style="-fx-background-color: yellow;" text="Add Launcher" textAlignment="CENTER" />
+      <Button layoutX="555.0" layoutY="241.0" mnemonicParsing="false" onAction="#AddMissileButtonAction" prefHeight="31.0" prefWidth="100.0" style="-fx-background-color: yellow;" text="Launch Missile">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </Button>
+      	<Button layoutX="555.0" layoutY="331.0" mnemonicParsing="false" onAction="#ExitButton" prefHeight="31.0" prefWidth="100.0" style="-fx-background-color: yellow;" text="Exit " />
+      	<Button layoutX="458.0" layoutY="325.0" mnemonicParsing="false" onAction="#NextButton" prefHeight="37.0" prefWidth="70.0" style="-fx-background-color: blue;" text="Next" textAlignment="CENTER" textFill="WHITE" />
+      	<Button layoutX="375.0" layoutY="325.0" mnemonicParsing="false" onAction="#BackButton" prefHeight="37.0" prefWidth="70.0" style="-fx-background-color: blue;" text="Back" textAlignment="CENTER" textFill="WHITE" />
+      	<Button layoutX="458.0" layoutY="281.0" mnemonicParsing="false" onAction="#SelectButton" prefHeight="31.0" prefWidth="70.0" style="-fx-background-color: white;" text="Select" textAlignment="CENTER" />
+      	<Button layoutX="375.0" layoutY="281.0" mnemonicParsing="false" onAction="#CancelButton" prefHeight="31.0" prefWidth="70.0" style="-fx-background-color: white;" text="Cancel" textAlignment="CENTER" />
+       	<Button layoutX="375.0" layoutY="204.0" mnemonicParsing="false" onAction="#TrunOnOffSystem" prefHeight="37.0" prefWidth="70.0" style="-fx-background-color: white;" text="On/off" textAlignment="CENTER" />
+      <Label fx:id="lbLine1" layoutX="369.0" layoutY="61.0" prefHeight="37.0" prefWidth="286.0" style="-fx-background-color: #7A0000;" text="connection off" textFill="#00ff09">
+         <font>
+            <Font name="DS-Digital,DS-DIGII.TFF" size="18.0" />
+         </font>
+      </Label>
+      <Label fx:id="lbLine2" layoutX="369.0" layoutY="124.0" prefHeight="37.0" prefWidth="286.0" style="-fx-background-color: #7A0000;" textFill="#00ff09">
+         <font>
+            <Font name="DS-Digital" size="18.0" />
+         </font>
+      </Label>
+     
+   </children>
+</Pane>
